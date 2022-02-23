@@ -10,5 +10,7 @@ namespace PagingCustomer.Contexts
 
         }
         public DbSet<Customer> Customers { get; set; }
+
+       
     }
 }

@@ -7,6 +7,7 @@ using PagingCustomer.Helpers;
 using PagingCustomer.Models;
 using PagingCustomer.Services;
 using PagingCustomer.Wrappers;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -29,9 +30,18 @@ namespace PagingCustomer.Controllers
             var route = Request.Path.Value;
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
             var pagedData = await _context.Customers
+                .Where(e => e.FirstName.Contains(filter.SearchText ?? String.Empty)
+                || e.LastName.Contains(filter.SearchText ?? String.Empty)
+                || e.Email.Contains(filter.SearchText ?? String.Empty)
+               )
+               .OrderBy(e => e.LastName)
+               .ThenBy(e => e.FirstName)
                .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
                .Take(validFilter.PageSize)
-               .ToListAsync();
+               .ToListAsync()
+               
+               
+               ;
             var totalRecords = await _context.Customers.CountAsync();
             var pagedReponse = PaginationHelper.CreatePagedReponse<Customer>(pagedData, validFilter, totalRecords, _uriService, route);
             return Ok(pagedReponse);
